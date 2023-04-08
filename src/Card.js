@@ -1,6 +1,6 @@
 import React from "react"
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button } from "reactstrap"
+import "./Card.css"
 
 const Card = ({url}) => {
     return (
