@@ -2,20 +2,23 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Button } from 'reactstrap'
 import Card from "./Card";
+import "./CardDeck.css"
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const CardDeck = () => {
     const [deckId, setDeckId] = useState(null)
     const [cardsLeft, setCardsLeft] = useState(52)
-    const [cardURL, setCardURL] = useState(null)
+    const [cardUrls, setCardUrls] = useState([])
 
     // Get a new deck
     useEffect(() => {
-        const newDeckURL = "https://deckofcardsapi.com/api/deck/new/"
+        const newDeckURL = "https://deckofcardsapi.com/api/deck/new/shuffle"
         const getDeck = async () => {
             try {
                 const resp = await axios.get(newDeckURL)
                 setDeckId(resp.data.deck_id)
+                console.log(resp.data)
+                setCardsLeft(resp.data.remaining)
             } catch (err) {
                 console.log(err)
             }
@@ -24,31 +27,31 @@ const CardDeck = () => {
         getDeck()
     }, [])
 
-    /**
-     * 
-     */
-
     // Handle drawing new card
-    useEffect(() => {
-        const drawBttn = document.querySelector("#drawCard")
-        const url = `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`
-        
-        const handleDraw = async () => {
+    const handleDraw = async () => {
+        if (cardsLeft > 0) {
+            const url = `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`
             try {
-                console.log(`Deck id: ${deckId}`)
                 const resp = await axios.get(url)
-                console.log(resp.data)
+                const cardUrl = resp.data.cards[0].image
+                setCardUrls([...cardUrls, cardUrl])
+                setCardsLeft(cardsLeft - 1)
+                console.log(cardsLeft)
             } catch (err) {
                 console.log(err)
             }
+        } else {
+            alert("Error: No cards remaining!")
         }
-        drawBttn.addEventListener("click", handleDraw)
-    })
+        
+    }
 
     return (
-        <div>
-            <Button id="drawCard" className="mb-3 mt-3">Hit me!</Button>
-            <Card url={"https://deckofcardsapi.com/static/img/QS.png"}/>
+        <div id="deckDiv">
+            <Button onClick={handleDraw} id="drawCard" className="mb-3 mt-3">Hit me!</Button>
+            <div className="cards">
+                {cardUrls.map(cardUrl => <Card url={cardUrl}/>)}
+            </div>
         </div>
     )
 }
