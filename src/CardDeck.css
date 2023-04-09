@@ -1,0 +1,8 @@
+.cards {
+    display: grid;
+}
+
+.cards > img {
+    grid-column: 1;
+    grid-row: 1;
+}
