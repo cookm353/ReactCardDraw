@@ -4,7 +4,7 @@ import "./Card.css"
 
 const Card = ({url}) => {
     return (
-        <img src={url} className="card"></img>
+        <img src={url} className="card mt-3" alt="card"></img>
     )
 }
 
