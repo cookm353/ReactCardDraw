@@ -22,7 +22,6 @@ const CardDeck = () => {
             } catch (err) {
                 console.log(err)
             }
-            
         }
         getDeck()
     }, [])
@@ -36,7 +35,6 @@ const CardDeck = () => {
                 const cardUrl = resp.data.cards[0].image
                 setCardUrls([...cardUrls, cardUrl])
                 setCardsLeft(cardsLeft - 1)
-                console.log(cardsLeft)
             } catch (err) {
                 console.log(err)
             }
