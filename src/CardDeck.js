@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Button } from 'reactstrap'
+import { v4 as uuidv4 } from "uuid"
 import Card from "./Card";
 import "./CardDeck.css"
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -48,7 +49,7 @@ const CardDeck = () => {
         <div id="deckDiv">
             <Button onClick={handleDraw} id="drawCard" className="mb-3 mt-3">Hit me!</Button>
             <div className="cards flex justify-content-center">
-                {cardUrls.map(cardUrl => <Card url={cardUrl}/>)}
+                {cardUrls.map(cardUrl => <Card url={cardUrl} key={uuidv4()}/>)}
             </div>
         </div>
     )
