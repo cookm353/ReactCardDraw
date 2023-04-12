@@ -47,7 +47,7 @@ const CardDeck = () => {
     return (
         <div id="deckDiv">
             <Button onClick={handleDraw} id="drawCard" className="mb-3 mt-3">Hit me!</Button>
-            <div className="cards">
+            <div className="cards flex justify-content-center">
                 {cardUrls.map(cardUrl => <Card url={cardUrl}/>)}
             </div>
         </div>
