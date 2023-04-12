@@ -10,6 +10,9 @@ const CardDeck = () => {
     const [deckId, setDeckId] = useState(null)
     const [cardsLeft, setCardsLeft] = useState(52)
     const [cardUrls, setCardUrls] = useState([])
+    const [isDrawing, setIsDrawing] = useState(false)
+    const [intervalId, setIntervalId] = useState(null)
+    const [buttonText, setButtonText] = useState("Start drawing")
 
     // Get a new deck
     useEffect(() => {
@@ -18,7 +21,6 @@ const CardDeck = () => {
             try {
                 const resp = await axios.get(newDeckURL)
                 setDeckId(resp.data.deck_id)
-                console.log(resp.data)
                 setCardsLeft(resp.data.remaining)
             } catch (err) {
                 console.log(err)
@@ -27,27 +29,42 @@ const CardDeck = () => {
         getDeck()
     }, [])
 
-    // Handle drawing new card
-    const handleDraw = async () => {
-        if (cardsLeft > 0) {
-            const url = `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`
-            try {
-                const resp = await axios.get(url)
-                const cardUrl = resp.data.cards[0].image
-                setCardUrls([...cardUrls, cardUrl])
-                setCardsLeft(cardsLeft - 1)
-            } catch (err) {
-                console.log(err)
-            }
+    // Change drawing state and button text
+    const handleDraw = () => {
+        setIsDrawing(!isDrawing)
+        if (!isDrawing) {
+            setButtonText("Stop drawing")
         } else {
-            alert("Error: No cards remaining!")
+            setButtonText("Start drawing")
         }
-        
     }
+
+    // Toggle drawing
+    useEffect(() => {
+        if(!isDrawing) {
+            clearInterval(intervalId)
+        } else {
+            setIntervalId(setInterval(async () => {
+                if (cardsLeft > 0) {
+                    const url = `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`
+                    try {
+                        const resp = await axios.get(url)
+                        const cardUrl = resp.data.cards[0].image
+                        setCardUrls([...cardUrls, cardUrl])
+                        setCardsLeft(cardsLeft - 1)
+                    } catch (err) {
+                        console.log(err)
+                    }
+                } else {
+                    alert("Error: No cards remaining!")
+                }
+            }, 1000))
+        }
+    }, [isDrawing])
 
     return (
         <div id="deckDiv">
-            <Button onClick={handleDraw} id="drawCard" className="mb-3 mt-3">Hit me!</Button>
+            <Button onClick={handleDraw} id="drawCard" className="mb-3 mt-3">{buttonText}</Button>
             <div className="cards flex justify-content-center">
                 {cardUrls.map(cardUrl => <Card url={cardUrl} key={uuidv4()}/>)}
             </div>
