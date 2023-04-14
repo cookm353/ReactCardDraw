@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Button } from 'reactstrap'
 import { v4 as uuidv4 } from "uuid"
@@ -7,12 +7,17 @@ import "./CardDeck.css"
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const CardDeck = () => {
-    const [deckId, setDeckId] = useState(null)
-    const [cardsLeft, setCardsLeft] = useState(52)
+    const deckId = useRef()
+    const cardsLeft = useRef(52)
+    const intervalId = useRef()
     const [cardUrls, setCardUrls] = useState([])
     const [isDrawing, setIsDrawing] = useState(false)
-    const [intervalId, setIntervalId] = useState(null)
     const [buttonText, setButtonText] = useState("Start drawing")
+
+    // Handle adding card
+    const addCard = (cardUrl) => {
+        setCardUrls(cardUrls => [...cardUrls, cardUrl])
+    }
 
     // Get a new deck
     useEffect(() => {
@@ -20,8 +25,8 @@ const CardDeck = () => {
         const getDeck = async () => {
             try {
                 const resp = await axios.get(newDeckURL)
-                setDeckId(resp.data.deck_id)
-                setCardsLeft(resp.data.remaining)
+                deckId.current = resp.data.deck_id
+                cardsLeft.current = resp.data.remaining
             } catch (err) {
                 console.log(err)
             }
@@ -42,16 +47,16 @@ const CardDeck = () => {
     // Toggle drawing
     useEffect(() => {
         if(!isDrawing) {
-            clearInterval(intervalId)
+            clearInterval(intervalId.current)
         } else {
-            setIntervalId(setInterval(async () => {
-                if (cardsLeft > 0) {
-                    const url = `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`
+            intervalId.current = (setInterval(async () => {
+                if (cardsLeft.current > 0) {
+                    const url = `https://deckofcardsapi.com/api/deck/${deckId.current}/draw/?count=1`
                     try {
                         const resp = await axios.get(url)
                         const cardUrl = resp.data.cards[0].image
-                        setCardUrls([...cardUrls, cardUrl])
-                        setCardsLeft(cardsLeft - 1)
+                        addCard(cardUrl)
+                        cardsLeft.current -= 1
                     } catch (err) {
                         console.log(err)
                     }
